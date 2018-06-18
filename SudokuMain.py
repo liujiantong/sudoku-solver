@@ -3,6 +3,7 @@
 
 import wx
 import wx.grid as gridlib
+from collections import defaultdict
 
 import SudokuSolver
 
@@ -210,21 +211,47 @@ class SudokuFrame(wx.Frame):
             if block.blockId == blockId:
                 block.SetCellValue(row, col, val)
                 if not self.ValidateInput(val):
-                    self.WarnInput("Input value:%s error" % val)
+                    self.WarnInput("Invalid number:%s conflicting with existing" % val)
                     block.SetCellValue(row, col, '')
                     break
 
-                blockIdx = self.GetValueIndex(blockId, row, col)
+                blockIdx = self.Local2Global(blockId, row, col)
                 print "blockIdx:(%d, %d)='%s'" % (blockIdx[0], blockIdx[1], val)
                 if val:
                     self.data[blockIdx] = val
-                else:
+                elif self.data.get(blockIdx, None) is not None:
                     del self.data[blockIdx]
                 break
 
     def ValidateInput(self, val):
-        # FIXME: validate input here
-        return val != '3'
+        # validate input here
+        blockId, row, col = self.selection
+        gRowSel, gColSel = self.Local2Global(blockId, row, col)
+
+        rowDict = defaultdict(list)
+        colDict = defaultdict(list)
+        for k, v in self.data.iteritems():
+            gRow, gCol = k
+            bid, r, c = self.Global2Local(gRow, gCol)
+            if bid == blockId:
+                return str(val) != v
+
+            rowDict[gRow].append(v)
+            colDict[gCol].append(v)
+
+        if val in rowDict[gRowSel] or val in colDict[gColSel]:
+            return False
+        return True
+
+    def Global2Local(self, gRow, gCol):
+        blckId = int(gRow / 3) * 3 + int(gCol / 3)
+        row, col = gRow % 3, gCol % 3
+        return blckId, row, col
+
+    def Local2Global(self, blckId, row, col):
+        gRow = int(blckId / 3) * 3 + row
+        gCol = int(blckId % 3) * 3 + col
+        return gRow, gCol
 
     def WarnInput(self, message, caption='Warning!'):
         dlg = wx.MessageDialog(self.panel, message, caption, wx.OK | wx.ICON_WARNING)
@@ -233,11 +260,6 @@ class SudokuFrame(wx.Frame):
 
     def EraseSelectionValue(self):
         self.SetSelectionValue('')
-
-    def GetValueIndex(self, blockId, row, col):
-        blckRow = int(blockId / 3) * 3 + row
-        blckCol = int(blockId % 3) * 3 + col
-        return blckRow, blckCol
 
     def DrawSolution(self, solution):
         for block in self.blocks:

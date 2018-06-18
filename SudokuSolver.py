@@ -7,7 +7,7 @@ def solve(input_dict):
     import random
     # TODO: implement algorithm here
     print 'input_dict: %s' % input_dict
-    time.sleep(3)
+    time.sleep(2)
 
     # fake solution
     solution = {}

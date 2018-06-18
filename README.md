@@ -1,17 +1,18 @@
 # sudoku-solver
 
-## install wxPython
+## install sudoku-solver
 ```bash
-pip install wxPython==4.0.1
+pip install -r requirements.txt
 ```
 
 ## run sudoku-solver
 - conda python
-```
+```bash
 pythonw SudokuMain.py
 ```
+
 - python
-```
+```bash
 python SudokuMain.py
 ```
 

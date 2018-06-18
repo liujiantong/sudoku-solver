@@ -269,6 +269,13 @@ class SudokuFrame(wx.Frame):
                 for col in xrange(3):
                     val = solution[(block.blockId, row, col)]
                     block.SetCellValue(row, col, str(val))
+        self.SetKnownColor('Orange')
+
+    def SetKnownColor(self, color='Orange'):
+        for k, v in self.data.iteritems():
+            bid, r, c = k
+            block = self.blocks[bid]
+            block.SetCellTextColour(r, c, color)
 
     def Solve(self):
         globalInput = {}
@@ -285,9 +292,10 @@ class SudokuFrame(wx.Frame):
 
     def OnReset(self, evt):
         print 'OnReset handler'
-        self.data.clear()
         for block in self.blocks:
             block.ResetValue()
+        self.SetKnownColor(wx.BLACK)
+        self.data.clear()
         evt.Skip()
 
     def OnErase(self, evt):

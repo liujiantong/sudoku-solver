@@ -8,11 +8,11 @@ pip install wxPython==4.0.1
 ## run sudoku-solver
 - conda python
 ```
-pythonw sudoku-solver.py
+pythonw SudokuMain.py
 ```
 - python
 ```
-python sudoku-solver.py
+python SudokuMain.py
 ```
 
 ## wxPython tutorial

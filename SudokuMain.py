@@ -37,6 +37,7 @@ class SudokuBlockGrid(gridlib.Grid):
                 # self.SetCellValue(row, col, "8")
 
         self.Bind(gridlib.EVT_GRID_CELL_LEFT_CLICK, self.OnLeftClick)
+        self.SetCellHighlightROPenWidth(0)
 
     def SetSize(self, row, col, width):
         self.SetRowSize(row, width)
@@ -52,6 +53,7 @@ class SudokuBlockGrid(gridlib.Grid):
 
     def OnLeftClick(self, evt):
         print("button OnLeftClick:(%d, %d)" % (evt.GetRow(), evt.GetCol()))
+        self.SetCellHighlightROPenWidth(1)
 
         if self.clicked is not None:
             print("last clicked:(%d, %d)" % self.clicked)
@@ -150,7 +152,6 @@ class SudokuFrame(wx.Frame):
         self.panel.SetSizer(topSizer)
         topSizer.Fit(self)
 
-
     def OnUndo(self, evt):
         print 'OnUndo handler'
 
@@ -170,3 +171,4 @@ if __name__ == '__main__':
     frame = SudokuFrame(None, sys.stdout)
     frame.Show(True)
     app.MainLoop()
+

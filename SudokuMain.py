@@ -27,7 +27,6 @@ class SudokuBlockGrid(gridlib.Grid):
 
         self.DisableCellEditControl()
         self.DisableDragGridSize()
-        self.clicked = None
 
         for row in xrange(self.rows):
             for col in xrange(self.cols):
@@ -44,7 +43,7 @@ class SudokuBlockGrid(gridlib.Grid):
         self.SetRowSize(row, width)
         self.SetColSize(col, width)
 
-    def SetBgColor(self, row, col, color):
+    def SetSelectBgColor(self, row, col, color):
         for r in xrange(self.rows):
             self.SetCellBackgroundColour(r, col, color)
         for c in xrange(self.cols):
@@ -61,13 +60,9 @@ class SudokuBlockGrid(gridlib.Grid):
         print("button OnLeftClick:(%d, %d)" % (evt.GetRow(), evt.GetCol()))
         self.sudoku.ClearSelection(self.blockId, evt.GetRow(), evt.GetCol())
         self.SetCellHighlightROPenWidth(1)
+        self.ClearBgColor()
 
-        if self.clicked is not None:
-            print("last clicked:(%d, %d)" % self.clicked)
-            self.SetBgColor(self.clicked[0], self.clicked[1], wx.WHITE)
-
-        self.SetBgColor(evt.GetRow(), evt.GetCol(), wx.LIGHT_GREY)
-        self.clicked = (evt.GetRow(), evt.GetCol())
+        self.SetSelectBgColor(evt.GetRow(), evt.GetCol(), wx.LIGHT_GREY)
         evt.Skip()
 
 

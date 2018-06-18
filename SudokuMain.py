@@ -1,7 +1,13 @@
 #!/usr/bin/env python
 
+
 import wx
 import wx.grid as gridlib
+
+try:
+    from agw import pybusyinfo as PBI
+except ImportError: # if it's not there locally, try the wxPython lib.
+    import wx.lib.agw.pybusyinfo as PBI
 
 
 no_resize_style = wx.SYSTEM_MENU | wx.CLOSE_BOX | wx.CAPTION
@@ -52,10 +58,6 @@ class SudokuBlockGrid(gridlib.Grid):
             self.SetCellBackgroundColour(r, col, color)
 
     def HighlightSelection(self, row, col, color):
-        # for r in xrange(self.rows):
-        #     self.SetCellBackgroundColour(r, col, color)
-        # for c in xrange(self.cols):
-        #     self.SetCellBackgroundColour(row, c, color)
         self.HighlightRow(row, color)
         self.HighlightCol(col, color)
 
@@ -118,6 +120,7 @@ class SudokuFrame(wx.Frame):
         self.panel = wx.Panel(self, -1, style=0)
         self.blocks = []
         self.selection = None  # (block_idx, row, col)
+        self.data = {}
 
         topSizer = wx.BoxSizer(wx.VERTICAL)
         gridSizer = wx.GridSizer(rows=3, cols=3, hgap=4, vgap=4)
@@ -186,20 +189,59 @@ class SudokuFrame(wx.Frame):
                 block.HighlightRow(row, wx.LIGHT_GREY)
 
     def SetSelectionValue(self, n):
+        if self.selection is None:
+            return
+
+        print 'block:%d, row:%d, col:%d' % self.selection
+
+        val = str(n)
         blockId, row, col = self.selection
         for block in self.blocks:
             if block.blockId == blockId:
-                block.SetCellValue(row, col, str(n))
+                block.SetCellValue(row, col, val)
+
+                numberIdx = self.GetValueIndex(blockId, row, col)
+                print 'numberIdx:%d' % numberIdx
+                if val:
+                    self.data[numberIdx] = val
+                else:
+                    del self.data[numberIdx]
+                break
+
+    def EraseSelectionValue(self):
+        self.SetSelectionValue("")
+
+    @staticmethod
+    def GetValueIndex(blockId, row, col):
+        # FIXME:
+        return (blockId / 3) * 27 + row * 9 + (blockId % 3) + col
+
+    def Solve(self):
+        print "Sudoku input:%s" % self.data
+        wx.MilliSleep(3 * 1000)
+        # solve sudoku with self.data
 
     def OnUndo(self, evt):
         print 'OnUndo handler'
+        evt.Skip()
 
     def OnErase(self, evt):
         print 'OnErase handler'
-        self.SetSelectionValue("")
+        self.EraseSelectionValue()
+        evt.Skip()
 
     def OnSolve(self, evt):
         print 'OnSolve handler'
+        evt.Skip()
+
+        waitSec = 3
+        message = "Please wait %d seconds, working..." % waitSec
+        bmp = wx.ArtProvider.GetBitmap(wx.ART_TICK_MARK, wx.ART_OTHER)
+        busy = PBI.PyBusyInfo(message, parent=None, title="Solving Sudoku...", icon=bmp)
+        wx.Yield()
+
+        self.Solve()
+        del busy
 
     def OnClose(self, evt):
         self.Close()

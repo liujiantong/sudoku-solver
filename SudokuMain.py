@@ -1,8 +1,10 @@
 #!/usr/bin/env python
-
+# encoding: utf-8
 
 import wx
 import wx.grid as gridlib
+
+import SudokuSolver
 
 try:
     from agw import pybusyinfo as PBI
@@ -67,6 +69,11 @@ class SudokuBlockGrid(gridlib.Grid):
             for c in xrange(self.cols):
                 self.SetCellBackgroundColour(r, c, wx.WHITE)
         self.ForceRefresh()
+
+    def ResetValue(self):
+        for r in xrange(self.rows):
+            for c in xrange(self.cols):
+                self.SetCellValue(r, c, '')
 
     def OnLeftClick(self, evt):
         print("button OnLeftClick:(%d, %d)" % (evt.GetRow(), evt.GetCol()))
@@ -140,8 +147,8 @@ class SudokuFrame(wx.Frame):
         bmp_solve = wx.ArtProvider.GetBitmap(wx.ART_FIND, wx.ART_OTHER)
         bmp_quit = wx.ArtProvider.GetBitmap(wx.ART_QUIT, wx.ART_OTHER)
 
-        undoBtn = wx.Button(self.panel, wx.ID_ANY, ' Undo ')
-        undoBtn.SetBitmap(bmp_undo, wx.LEFT)
+        resetBtn = wx.Button(self.panel, wx.ID_ANY, ' Reset ')
+        resetBtn.SetBitmap(bmp_undo, wx.LEFT)
         eraseBtn = wx.Button(self.panel, wx.ID_ANY, ' Erase ')
         eraseBtn.SetBitmap(bmp_erase, wx.LEFT)
         solveBtn = wx.Button(self.panel, wx.ID_ANY, ' Solve ')
@@ -149,12 +156,12 @@ class SudokuFrame(wx.Frame):
         quitBtn = wx.Button(self.panel, wx.ID_ANY, ' Quit ')
         quitBtn.SetBitmap(bmp_quit, wx.LEFT)
 
-        btnSizer.Add(undoBtn, 0, wx.ALL, 10)
+        btnSizer.Add(resetBtn, 0, wx.ALL, 10)
         btnSizer.Add(eraseBtn, 0, wx.ALL, 10)
         btnSizer.Add(solveBtn, 0, wx.ALL, 10)
         btnSizer.Add(quitBtn, 0, wx.ALL, 10)
 
-        self.Bind(wx.EVT_BUTTON, self.OnUndo, undoBtn)
+        self.Bind(wx.EVT_BUTTON, self.OnReset, resetBtn)
         self.Bind(wx.EVT_BUTTON, self.OnErase, eraseBtn)
         self.Bind(wx.EVT_BUTTON, self.OnSolve, solveBtn)
         self.Bind(wx.EVT_BUTTON, self.OnClose, quitBtn)
@@ -179,6 +186,10 @@ class SudokuFrame(wx.Frame):
                 continue
             block.ClearBgColor()
 
+    def ResetSelection(self):
+        for block in self.blocks:
+            block.ClearBgColor()
+
     def HighlightSelection(self, blockId, row, col):
         for block in self.blocks:
             if block.blockId == blockId:
@@ -200,29 +211,41 @@ class SudokuFrame(wx.Frame):
             if block.blockId == blockId:
                 block.SetCellValue(row, col, val)
 
-                numberIdx = self.GetValueIndex(blockId, row, col)
-                print 'numberIdx:%d' % numberIdx
+                blockIdx = self.GetValueIndex(blockId, row, col)
+                print "blockIdx:(%d, %d)='%s'" % (blockIdx[0], blockIdx[1], val)
                 if val:
-                    self.data[numberIdx] = val
+                    self.data[blockIdx] = val
                 else:
-                    del self.data[numberIdx]
+                    del self.data[blockIdx]
                 break
 
     def EraseSelectionValue(self):
-        self.SetSelectionValue("")
+        self.SetSelectionValue('')
 
-    @staticmethod
-    def GetValueIndex(blockId, row, col):
-        # FIXME:
-        return (blockId / 3) * 27 + row * 9 + (blockId % 3) + col
+    def GetValueIndex(self, blockId, row, col):
+        blckRow = int(blockId / 3) * 3 + row
+        blckCol = int(blockId % 3) * 3 + col
+        return blckRow, blckCol
+
+    def DrawSolution(self, solution):
+        for block in self.blocks:
+            for row in xrange(3):
+                for col in xrange(3):
+                    val = solution[(block.blockId, row, col)]
+                    block.SetCellValue(row, col, str(val))
 
     def Solve(self):
         print "Sudoku input:%s" % self.data
-        wx.MilliSleep(3 * 1000)
+        solution = SudokuSolver.solve(self.data)
         # solve sudoku with self.data
+        print "done"
+        return solution
 
-    def OnUndo(self, evt):
-        print 'OnUndo handler'
+    def OnReset(self, evt):
+        print 'OnReset handler'
+        self.data.clear()
+        for block in self.blocks:
+            block.ResetValue()
         evt.Skip()
 
     def OnErase(self, evt):
@@ -234,16 +257,19 @@ class SudokuFrame(wx.Frame):
         print 'OnSolve handler'
         evt.Skip()
 
-        waitSec = 3
-        message = "Please wait %d seconds, working..." % waitSec
+        message = "Please wait seconds, working..."
         bmp = wx.ArtProvider.GetBitmap(wx.ART_TICK_MARK, wx.ART_OTHER)
-        busy = PBI.PyBusyInfo(message, parent=None, title="Solving Sudoku...", icon=bmp)
+        busyIcon = PBI.PyBusyInfo(message, parent=None, title="Solving Sudoku...", icon=bmp)
         wx.Yield()
 
-        self.Solve()
-        del busy
+        solution = self.Solve()
+        del busyIcon
+
+        self.ResetSelection()
+        self.DrawSolution(solution)
 
     def OnClose(self, evt):
+        evt.Skip()
         self.Close()
 
 

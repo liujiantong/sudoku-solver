@@ -9,12 +9,13 @@ block_width = 50
 
 
 class SudokuBlockGrid(gridlib.Grid):
-    def __init__(self, parent, blockId, size, log):
+    def __init__(self, parent, sudoku, blockId, size, log):
         gridlib.Grid.__init__(self, parent, -1, style=no_resize_style)
+        self.sudoku = sudoku
         self.log = log
         self.blockId = blockId
-        rows, cols = size
-        self.CreateGrid(rows, cols)
+        self.rows, self.cols = size
+        self.CreateGrid(self.rows, self.cols)
 
         # self.AutoSize()
         self.SetRowLabelSize(0)
@@ -28,8 +29,8 @@ class SudokuBlockGrid(gridlib.Grid):
         self.DisableDragGridSize()
         self.clicked = None
 
-        for row in xrange(rows):
-            for col in xrange(cols):
+        for row in xrange(self.rows):
+            for col in xrange(self.cols):
                 self.SetSize(row, col, block_width)
                 self.SetReadOnly(row, col, True)
                 self.SetCellFont(row, col, wx.Font(30, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL))
@@ -44,15 +45,21 @@ class SudokuBlockGrid(gridlib.Grid):
         self.SetColSize(col, width)
 
     def SetBgColor(self, row, col, color):
-        rows = self.GetTable().GetNumberRows()
-        cols = self.GetTable().GetNumberCols()
-        for r in xrange(rows):
+        for r in xrange(self.rows):
             self.SetCellBackgroundColour(r, col, color)
-        for c in xrange(cols):
+        for c in xrange(self.cols):
             self.SetCellBackgroundColour(row, c, color)
+
+    def ClearBgColor(self):
+        print 'ClearBgColor: %d' % self.blockId
+        for r in xrange(self.rows):
+            for c in xrange(self.cols):
+                self.SetCellBackgroundColour(r, c, wx.WHITE)
+        self.ForceRefresh()
 
     def OnLeftClick(self, evt):
         print("button OnLeftClick:(%d, %d)" % (evt.GetRow(), evt.GetCol()))
+        self.sudoku.ClearSelection(self.blockId, evt.GetRow(), evt.GetCol())
         self.SetCellHighlightROPenWidth(1)
 
         if self.clicked is not None:
@@ -102,6 +109,7 @@ class SudokuFrame(wx.Frame):
         # Add a panel so it looks correct on all platforms
         self.panel = wx.Panel(self, -1, style=0)
         self.blocks = []
+        self.selection = None  # (block_idx, row, col)
 
         topSizer = wx.BoxSizer(wx.VERTICAL)
         gridSizer = wx.GridSizer(rows=3, cols=3, hgap=4, vgap=4)
@@ -109,7 +117,7 @@ class SudokuFrame(wx.Frame):
         btnSizer = wx.BoxSizer(wx.HORIZONTAL)
 
         for idx in xrange(9):
-            block = SudokuBlockGrid(self.panel, idx, (3, 3), log)
+            block = SudokuBlockGrid(self.panel, self, idx, (3, 3), log)
             gridSizer.Add(block, 0, wx.EXPAND)
             self.blocks.append(block)
 
@@ -151,6 +159,14 @@ class SudokuFrame(wx.Frame):
 
         self.panel.SetSizer(topSizer)
         topSizer.Fit(self)
+
+    def ClearSelection(self, blockId, row, col):
+        self.selection = (blockId, row, col)
+        print 'selection:(%d, %d, %d)' % self.selection
+        for block in self.blocks:
+            if block.blockId == blockId:
+                continue
+            block.ClearBgColor()
 
     def OnUndo(self, evt):
         print 'OnUndo handler'

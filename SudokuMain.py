@@ -78,8 +78,9 @@ class SudokuBlockGrid(gridlib.Grid):
 
 
 class NumberGrid(gridlib.Grid):
-    def __init__(self, parent, log):
+    def __init__(self, parent, sudoku, log):
         gridlib.Grid.__init__(self, parent, -1, style=no_resize_style)
+        self.sudoku = sudoku
         self.log = log
         self.CreateGrid(1, 9)
 
@@ -106,6 +107,7 @@ class NumberGrid(gridlib.Grid):
 
     def OnCellLeftClick(self, evt):
         self.log.write("OnCellLeftClick:(%d, %d)\n" % (evt.GetRow(), evt.GetCol()))
+        self.sudoku.SetSelectionValue(evt.GetCol() + 1)
         evt.Skip()
 
 
@@ -115,7 +117,7 @@ class SudokuFrame(wx.Frame):
         # Add a panel so it looks correct on all platforms
         self.panel = wx.Panel(self, -1, style=0)
         self.blocks = []
-        # self.selection = None  # (block_idx, row, col)
+        self.selection = None  # (block_idx, row, col)
 
         topSizer = wx.BoxSizer(wx.VERTICAL)
         gridSizer = wx.GridSizer(rows=3, cols=3, hgap=4, vgap=4)
@@ -127,7 +129,7 @@ class SudokuFrame(wx.Frame):
             gridSizer.Add(block, 0, wx.EXPAND)
             self.blocks.append(block)
 
-        numberGrid = NumberGrid(self.panel, log)
+        numberGrid = NumberGrid(self.panel, self, log)
         numberSizer.Add(numberGrid, 0, wx.ALL, 5)
 
         bmp_undo = wx.ArtProvider.GetBitmap(wx.ART_UNDO, wx.ART_OTHER)
@@ -167,7 +169,7 @@ class SudokuFrame(wx.Frame):
         topSizer.Fit(self)
 
     def ClearSelection(self, blockId, row, col):
-        # self.selection = (blockId, row, col)
+        self.selection = (blockId, row, col)
         print 'selection:(%d, %d, %d)' % (blockId, row, col)
         for block in self.blocks:
             if block.blockId == blockId:
@@ -183,11 +185,18 @@ class SudokuFrame(wx.Frame):
             if block.blockId / 3 == blockId / 3:
                 block.HighlightRow(row, wx.LIGHT_GREY)
 
+    def SetSelectionValue(self, n):
+        blockId, row, col = self.selection
+        for block in self.blocks:
+            if block.blockId == blockId:
+                block.SetCellValue(row, col, str(n))
+
     def OnUndo(self, evt):
         print 'OnUndo handler'
 
     def OnErase(self, evt):
         print 'OnErase handler'
+        self.SetSelectionValue("")
 
     def OnSolve(self, evt):
         print 'OnSolve handler'

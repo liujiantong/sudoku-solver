@@ -64,7 +64,7 @@ class SudokuBlockGrid(gridlib.Grid):
         self.HighlightCol(col, color)
 
     def ClearBgColor(self):
-        print 'ClearBgColor: %d' % self.blockId
+        # print 'ClearBgColor: %d' % self.blockId
         for r in xrange(self.rows):
             for c in xrange(self.cols):
                 self.SetCellBackgroundColour(r, c, wx.WHITE)
@@ -202,7 +202,6 @@ class SudokuFrame(wx.Frame):
     def SetSelectionValue(self, n):
         if self.selection is None:
             return
-
         print 'block:%d, row:%d, col:%d' % self.selection
 
         val = str(n)
@@ -210,6 +209,10 @@ class SudokuFrame(wx.Frame):
         for block in self.blocks:
             if block.blockId == blockId:
                 block.SetCellValue(row, col, val)
+                if not self.ValidateInput(val):
+                    self.WarnInput("Input value:%s error" % val)
+                    block.SetCellValue(row, col, '')
+                    break
 
                 blockIdx = self.GetValueIndex(blockId, row, col)
                 print "blockIdx:(%d, %d)='%s'" % (blockIdx[0], blockIdx[1], val)
@@ -218,6 +221,15 @@ class SudokuFrame(wx.Frame):
                 else:
                     del self.data[blockIdx]
                 break
+
+    def ValidateInput(self, val):
+        # FIXME: validate input here
+        return val != '3'
+
+    def WarnInput(self, message, caption='Warning!'):
+        dlg = wx.MessageDialog(self.panel, message, caption, wx.OK | wx.ICON_WARNING)
+        dlg.ShowModal()
+        dlg.Destroy()
 
     def EraseSelectionValue(self):
         self.SetSelectionValue('')

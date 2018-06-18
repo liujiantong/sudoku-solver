@@ -181,7 +181,7 @@ class SudokuFrame(wx.Frame):
 
     def ClearSelection(self, blockId, row, col):
         self.selection = (blockId, row, col)
-        print 'selection:(%d, %d, %d)' % (blockId, row, col)
+        print 'selection:[%d:(%d, %d)]' % (blockId, row, col)
         for block in self.blocks:
             if block.blockId == blockId:
                 continue
@@ -203,7 +203,7 @@ class SudokuFrame(wx.Frame):
     def SetSelectionValue(self, n):
         if self.selection is None:
             return
-        print 'block:%d, row:%d, col:%d' % self.selection
+        print 'selection:[%d:(row:%d, col:%d)]' % self.selection
 
         val = str(n)
         blockId, row, col = self.selection
@@ -215,25 +215,26 @@ class SudokuFrame(wx.Frame):
                     block.SetCellValue(row, col, '')
                     break
 
-                blockIdx = self.Local2Global(blockId, row, col)
-                print "blockIdx:(%d, %d)='%s'" % (blockIdx[0], blockIdx[1], val)
+                # blockIdx = self.Local2Global(blockId, row, col)
+                # print "blockIdx:(%d, %d)='%s'" % (blockIdx[0], blockIdx[1], val)
                 if val:
-                    self.data[blockIdx] = val
-                elif self.data.get(blockIdx, None) is not None:
-                    del self.data[blockIdx]
+                    self.data[self.selection] = val
+                elif self.data.get(self.selection, None) is not None:
+                    del self.data[self.selection]
                 break
 
     def ValidateInput(self, val):
         # validate input here
+        print 'self.data:%s' % self.data
         blockId, row, col = self.selection
         gRowSel, gColSel = self.Local2Global(blockId, row, col)
-        print 'global:(%d, %d), local:(%d, %d, %d)' % (gRowSel, gColSel, blockId, row, col)
+        print 'global:(%d, %d), local:[%d:(%d, %d)]' % (gRowSel, gColSel, blockId, row, col)
 
         rowDict = defaultdict(list)
         colDict = defaultdict(list)
         for k, v in self.data.iteritems():
-            gRow, gCol = k
-            bid, r, c = self.Global2Local(gRow, gCol)
+            bid, r, c = k
+            gRow, gCol = self.Local2Global(bid, r, c)
             if bid == blockId:
                 return str(val) != v
 
@@ -270,8 +271,14 @@ class SudokuFrame(wx.Frame):
                     block.SetCellValue(row, col, str(val))
 
     def Solve(self):
-        print "Sudoku input:%s" % self.data
-        solution = SudokuSolver.solve(self.data)
+        globalInput = {}
+        for k, v in self.data.iteritems():
+            bid, r, c = k
+            gRow, gCol = self.Local2Global(bid, r, c)
+            globalInput[(gRow, gCol)] = v
+
+        print "Sudoku input:%s" % globalInput
+        solution = SudokuSolver.solve(globalInput)
         # solve sudoku with self.data
         print "done"
         return solution

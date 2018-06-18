@@ -227,6 +227,7 @@ class SudokuFrame(wx.Frame):
         # validate input here
         blockId, row, col = self.selection
         gRowSel, gColSel = self.Local2Global(blockId, row, col)
+        print 'global:(%d, %d), local:(%d, %d, %d)' % (gRowSel, gColSel, blockId, row, col)
 
         rowDict = defaultdict(list)
         colDict = defaultdict(list)

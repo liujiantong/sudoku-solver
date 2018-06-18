@@ -6,7 +6,7 @@ def solve(input_dict):
     import time
     import random
     # TODO: implement algorithm here
-    print 'input_dict: %s' % input_dict
+    print 'number_input: %s' % input_dict
     time.sleep(2)
 
     # fake solution

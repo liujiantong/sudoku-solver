@@ -3,17 +3,27 @@
 
 
 def solve(input_dict):
+    """
+    Solve sudoku
+    :param input_dict - sudoku input matrix whose key is matrix position
+    :return:
+    """
+    print 'number_input: %s' % input_dict
+
+    # TODO: fake solution algorithm start
     import time
     import random
-    # TODO: implement algorithm here
-    print 'number_input: %s' % input_dict
     time.sleep(2)
 
-    # fake solution
     solution = {}
-    for blckId in xrange(9):
-        for row in xrange(3):
-            for col in xrange(3):
-                solution[(blckId, row, col)] = random.randrange(1, 10)
+    for row in xrange(9):
+        for col in xrange(9):
+            solution[(row, col)] = random.randrange(1, 10)
+
+    for k, v in input_dict.iteritems():
+        row, col = k
+        solution[(row, col)] = v
+    # TODO: fake solution algorithm end
+    
     return solution
 

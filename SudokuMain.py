@@ -12,9 +12,9 @@ try:
 except ImportError: # if it's not there locally, try the wxPython lib.
     import wx.lib.agw.pybusyinfo as PBI
 
-
-no_resize_style = wx.SYSTEM_MENU | wx.CLOSE_BOX | wx.CAPTION
+min_numbers = 5
 block_width = 50
+no_resize_style = wx.SYSTEM_MENU | wx.CLOSE_BOX | wx.CAPTION
 
 
 class SudokuBlockGrid(gridlib.Grid):
@@ -148,23 +148,24 @@ class SudokuFrame(wx.Frame):
         bmp_solve = wx.ArtProvider.GetBitmap(wx.ART_FIND, wx.ART_OTHER)
         bmp_quit = wx.ArtProvider.GetBitmap(wx.ART_QUIT, wx.ART_OTHER)
 
+        self.solveBtn = wx.Button(self.panel, wx.ID_ANY, ' Solve ')
+        self.solveBtn.SetBitmap(bmp_solve, wx.LEFT)
+        self.solveBtn.Disable()
         resetBtn = wx.Button(self.panel, wx.ID_ANY, ' Reset ')
         resetBtn.SetBitmap(bmp_undo, wx.LEFT)
         eraseBtn = wx.Button(self.panel, wx.ID_ANY, ' Erase ')
         eraseBtn.SetBitmap(bmp_erase, wx.LEFT)
-        solveBtn = wx.Button(self.panel, wx.ID_ANY, ' Solve ')
-        solveBtn.SetBitmap(bmp_solve, wx.LEFT)
         quitBtn = wx.Button(self.panel, wx.ID_ANY, ' Quit ')
         quitBtn.SetBitmap(bmp_quit, wx.LEFT)
 
         btnSizer.Add(resetBtn, 0, wx.ALL, 10)
         btnSizer.Add(eraseBtn, 0, wx.ALL, 10)
-        btnSizer.Add(solveBtn, 0, wx.ALL, 10)
+        btnSizer.Add(self.solveBtn, 0, wx.ALL, 10)
         btnSizer.Add(quitBtn, 0, wx.ALL, 10)
 
         self.Bind(wx.EVT_BUTTON, self.OnReset, resetBtn)
         self.Bind(wx.EVT_BUTTON, self.OnErase, eraseBtn)
-        self.Bind(wx.EVT_BUTTON, self.OnSolve, solveBtn)
+        self.Bind(wx.EVT_BUTTON, self.OnSolve, self.solveBtn)
         self.Bind(wx.EVT_BUTTON, self.OnClose, quitBtn)
 
         topSizer.Add(gridSizer, 0, wx.ALL | wx.EXPAND, 5)
@@ -215,20 +216,20 @@ class SudokuFrame(wx.Frame):
                     block.SetCellValue(row, col, '')
                     break
 
-                # blockIdx = self.Local2Global(blockId, row, col)
-                # print "blockIdx:(%d, %d)='%s'" % (blockIdx[0], blockIdx[1], val)
                 if val:
                     self.data[self.selection] = val
-                elif self.data.get(self.selection, None) is not None:
+                elif self.data.get(self.selection, None):
                     del self.data[self.selection]
                 break
 
+        print 'self.data:%s' % self.data
+        self.solveBtn.Enable(len(self.data) >= min_numbers)
+
     def ValidateInput(self, val):
         # validate input here
-        print 'self.data:%s' % self.data
         blockId, row, col = self.selection
         gRowSel, gColSel = self.Local2Global(blockId, row, col)
-        print 'global:(%d, %d), local:[%d:(%d, %d)]' % (gRowSel, gColSel, blockId, row, col)
+        print 'global:(%d, %d), local:[%d:(%d, %d)], value:%s' % (gRowSel, gColSel, blockId, row, col, val)
 
         rowDict = defaultdict(list)
         colDict = defaultdict(list)
@@ -264,11 +265,11 @@ class SudokuFrame(wx.Frame):
         self.SetSelectionValue('')
 
     def DrawSolution(self, solution):
-        for block in self.blocks:
-            for row in xrange(3):
-                for col in xrange(3):
-                    val = solution[(block.blockId, row, col)]
-                    block.SetCellValue(row, col, str(val))
+        for row in xrange(9):
+            for col in xrange(9):
+                val = solution[(row, col)]
+                bid, r, c = self.Global2Local(row, col)
+                self.blocks[bid].SetCellValue(r, c, str(val))
         self.SetKnownColor('Orange')
 
     def SetKnownColor(self, color='Orange'):
@@ -286,7 +287,6 @@ class SudokuFrame(wx.Frame):
 
         print "Sudoku input:%s" % globalInput
         solution = SudokuSolver.solve(globalInput)
-        # solve sudoku with self.data
         print "done"
         return solution
 
@@ -296,6 +296,7 @@ class SudokuFrame(wx.Frame):
             block.ResetValue()
         self.SetKnownColor(wx.BLACK)
         self.data.clear()
+        self.solveBtn.Disable()
         evt.Skip()
 
     def OnErase(self, evt):
@@ -315,6 +316,7 @@ class SudokuFrame(wx.Frame):
         solution = self.Solve()
         del busyIcon
 
+        self.solveBtn.Disable()
         self.ResetSelection()
         self.DrawSolution(solution)
 

@@ -43,11 +43,21 @@ class SudokuBlockGrid(gridlib.Grid):
         self.SetRowSize(row, width)
         self.SetColSize(col, width)
 
-    def SetSelectBgColor(self, row, col, color):
-        for r in xrange(self.rows):
-            self.SetCellBackgroundColour(r, col, color)
+    def HighlightRow(self, row, color):
         for c in xrange(self.cols):
             self.SetCellBackgroundColour(row, c, color)
+
+    def HighlightCol(self, col, color):
+        for r in xrange(self.rows):
+            self.SetCellBackgroundColour(r, col, color)
+
+    def HighlightSelection(self, row, col, color):
+        # for r in xrange(self.rows):
+        #     self.SetCellBackgroundColour(r, col, color)
+        # for c in xrange(self.cols):
+        #     self.SetCellBackgroundColour(row, c, color)
+        self.HighlightRow(row, color)
+        self.HighlightCol(col, color)
 
     def ClearBgColor(self):
         print 'ClearBgColor: %d' % self.blockId
@@ -62,7 +72,8 @@ class SudokuBlockGrid(gridlib.Grid):
         self.SetCellHighlightROPenWidth(1)
         self.ClearBgColor()
 
-        self.SetSelectBgColor(evt.GetRow(), evt.GetCol(), wx.LIGHT_GREY)
+        self.HighlightSelection(evt.GetRow(), evt.GetCol(), wx.LIGHT_GREY)
+        self.sudoku.HighlightSelection(self.blockId, evt.GetRow(), evt.GetCol())
         evt.Skip()
 
 
@@ -104,7 +115,7 @@ class SudokuFrame(wx.Frame):
         # Add a panel so it looks correct on all platforms
         self.panel = wx.Panel(self, -1, style=0)
         self.blocks = []
-        self.selection = None  # (block_idx, row, col)
+        # self.selection = None  # (block_idx, row, col)
 
         topSizer = wx.BoxSizer(wx.VERTICAL)
         gridSizer = wx.GridSizer(rows=3, cols=3, hgap=4, vgap=4)
@@ -156,12 +167,21 @@ class SudokuFrame(wx.Frame):
         topSizer.Fit(self)
 
     def ClearSelection(self, blockId, row, col):
-        self.selection = (blockId, row, col)
-        print 'selection:(%d, %d, %d)' % self.selection
+        # self.selection = (blockId, row, col)
+        print 'selection:(%d, %d, %d)' % (blockId, row, col)
         for block in self.blocks:
             if block.blockId == blockId:
                 continue
             block.ClearBgColor()
+
+    def HighlightSelection(self, blockId, row, col):
+        for block in self.blocks:
+            if block.blockId == blockId:
+                continue
+            if block.blockId % 3 == blockId % 3:
+                block.HighlightCol(col, wx.LIGHT_GREY)
+            if block.blockId / 3 == blockId / 3:
+                block.HighlightRow(row, wx.LIGHT_GREY)
 
     def OnUndo(self, evt):
         print 'OnUndo handler'

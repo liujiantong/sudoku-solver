@@ -47,5 +47,3 @@ pyinstaller --clean -i sudoku.icns -w SudokuMain.py
 ## PyInstaller
 [PyInstaller Manual](https://pythonhosted.org/PyInstaller/index.html)
 
-
-iconutil -c sudoku.icns ./sudoku.iconset/

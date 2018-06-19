@@ -128,7 +128,7 @@ class SudokuFrame(wx.Frame):
         self.panel = wx.Panel(self, -1, style=0)
         self.blocks = []
         self.selection = None  # (block_idx, row, col)
-        self.data = {}
+        self.inputMatrix = {}
 
         topSizer = wx.BoxSizer(wx.VERTICAL)
         gridSizer = wx.GridSizer(rows=3, cols=3, hgap=4, vgap=4)
@@ -217,13 +217,13 @@ class SudokuFrame(wx.Frame):
                     break
 
                 if val:
-                    self.data[self.selection] = val
-                elif self.data.get(self.selection, None):
-                    del self.data[self.selection]
+                    self.inputMatrix[self.selection] = val
+                elif self.inputMatrix.get(self.selection, None):
+                    del self.inputMatrix[self.selection]
                 break
 
-        print 'self.data:%s' % self.data
-        self.solveBtn.Enable(len(self.data) >= min_numbers)
+        print 'self.data:%s' % self.inputMatrix
+        self.solveBtn.Enable(len(self.inputMatrix) >= min_numbers)
 
     def ValidateInput(self, val):
         # validate input here
@@ -233,7 +233,7 @@ class SudokuFrame(wx.Frame):
 
         rowDict = defaultdict(list)
         colDict = defaultdict(list)
-        for k, v in self.data.iteritems():
+        for k, v in self.inputMatrix.iteritems():
             bid, r, c = k
             gRow, gCol = self.Local2Global(bid, r, c)
             if bid == blockId:
@@ -273,14 +273,14 @@ class SudokuFrame(wx.Frame):
         self.SetKnownColor('Orange')
 
     def SetKnownColor(self, color='Orange'):
-        for k, v in self.data.iteritems():
+        for k, v in self.inputMatrix.iteritems():
             bid, r, c = k
             block = self.blocks[bid]
             block.SetCellTextColour(r, c, color)
 
     def Solve(self):
         globalInput = {}
-        for k, v in self.data.iteritems():
+        for k, v in self.inputMatrix.iteritems():
             bid, r, c = k
             gRow, gCol = self.Local2Global(bid, r, c)
             globalInput[(gRow, gCol)] = v
@@ -295,7 +295,7 @@ class SudokuFrame(wx.Frame):
         for block in self.blocks:
             block.ResetValue()
         self.SetKnownColor(wx.BLACK)
-        self.data.clear()
+        self.inputMatrix.clear()
         self.solveBtn.Disable()
         evt.Skip()
 

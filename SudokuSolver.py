@@ -2,13 +2,13 @@
 # encoding: utf-8
 
 
-def solve(input_dict):
+def solve(matrix_input):
     """
     Solve sudoku
-    :param input_dict - sudoku input matrix whose key is matrix position
-    :return:
+    :param matrix_input: (row, col) -> value
+    :return: matrix solution: (row, col) -> value
     """
-    print 'number_input: %s' % input_dict
+    print 'number_input: %s' % matrix_input
 
     # TODO: fake solution algorithm start
     import time
@@ -20,10 +20,10 @@ def solve(input_dict):
         for col in xrange(9):
             solution[(row, col)] = random.randrange(1, 10)
 
-    for k, v in input_dict.iteritems():
+    for k, v in matrix_input.iteritems():
         row, col = k
         solution[(row, col)] = v
     # TODO: fake solution algorithm end
-    
+
     return solution
 

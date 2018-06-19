@@ -109,8 +109,9 @@ class NumberGrid(gridlib.Grid):
         for col in xrange(9):
             self.SetColSize(col, block_width)
             self.SetReadOnly(0, col, True)
-            self.SetCellFont(0, col, wx.Font(30, wx.FONTFAMILY_SWISS, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD))
+            self.SetCellFont(0, col, wx.Font(30, wx.FONTFAMILY_MODERN, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD))
             self.SetCellAlignment(0, col, wx.ALIGN_CENTER, wx.ALIGN_CENTER)
+            self.SetCellTextColour(0, col, 'MIDNIGHT BLUE')
             self.SetCellValue(0, col, str(col+1))
 
         self.Bind(gridlib.EVT_GRID_CELL_LEFT_CLICK, self.OnCellLeftClick)
@@ -195,7 +196,12 @@ class SudokuFrame(wx.Frame):
     def HighlightSelection(self, blockId, row, col):
         for block in self.blocks:
             if block.blockId == blockId:
+                for r in xrange(3):
+                    for c in xrange(3):
+                        block.SetCellBackgroundColour(r, c, wx.LIGHT_GREY)
+                block.SetCellBackgroundColour(row, col, 'LIGHT STEEL BLUE')
                 continue
+
             if block.blockId % 3 == blockId % 3:
                 block.HighlightCol(col, wx.LIGHT_GREY)
             if block.blockId / 3 == blockId / 3:
@@ -270,9 +276,9 @@ class SudokuFrame(wx.Frame):
                 val = solution[(row, col)]
                 bid, r, c = self.Global2Local(row, col)
                 self.blocks[bid].SetCellValue(r, c, str(val))
-        self.SetKnownColor('Orange')
+        self.SetKnownColor('ORANGE')
 
-    def SetKnownColor(self, color='Orange'):
+    def SetKnownColor(self, color='ORANGE'):
         for k, v in self.inputMatrix.iteritems():
             bid, r, c = k
             block = self.blocks[bid]

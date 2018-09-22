@@ -37,6 +37,11 @@ cd sudoku-solver
 pyinstaller --clean -i sudoku.icns -w SudokuMain.py
 ```
 
+### clean build
+```bash
+rm -rf build/ dist/
+```
+
 
 ## wxPython tutorial
 [Getting started with wxPython](https://wiki.wxpython.org/Getting%20Started#Improving_the_layout_-_Using_Sizers)

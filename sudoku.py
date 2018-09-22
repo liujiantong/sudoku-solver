@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import fileinput
 
 from dlx import DLX

@@ -1,8 +1,9 @@
-from numpy import inf
+# encoding: utf-8
 
 
 class DataObject(object):
-    """Describes a data object in the Dancing Links algorithm.
+    """
+    Describes a data object in the Dancing Links algorithm.
     """
 
     def __init__(self, C, ID):
@@ -15,7 +16,8 @@ class DataObject(object):
 
 
 class ColumnObject(DataObject):
-    """Describes a column object in the Dancing Links algorithm.
+    """
+    Describes a column object in the Dancing Links algorithm.
     """
 
     def __init__(self, ID):
@@ -24,7 +26,8 @@ class ColumnObject(DataObject):
 
 
 class DLX(object):
-    """Solves exact cover problems using the Dancing Links algorithm.
+    """
+    Solves exact cover problems using the Dancing Links algorithm.
     """
 
     def __init__(self, h, callback):
@@ -35,12 +38,12 @@ class DLX(object):
 
     @classmethod
     def from_matrix(cls, M, callback):
-        """Create links from specified binary matrix (numpy array). Callback
+        """
+        Create links from specified binary matrix (numpy array). Callback
         is called when a solution is found.
 
         For a mxn matrix.
         O(n + m + n) = O(2n + m) ~ O(max(n, m))
-
         """
         rows, cols = M.shape
         # root
@@ -87,7 +90,8 @@ class DLX(object):
 
     @classmethod
     def from_sudoku(cls, grid, callback):
-        """Create links from specified 9x9 grid (numpy array). Callback is
+        """
+        Create links from specified 9x9 grid (numpy array). Callback is
         called when a solution is found.
 
         Skip the step of reducing the sudoku to a binary matrix and instead
@@ -96,7 +100,6 @@ class DLX(object):
         accessed in O(1). Since each column object always has a reference to
         the last row element, we can always quickly append new row elements by
         using said array.
-
         """
         cols = []
         # root
@@ -119,7 +122,8 @@ class DLX(object):
         row_num = lambda x, y, k: x * 81 + y * 9 + k
 
         def link_rows(a, b, c, d):
-            """Helper function for linking row elements a,b,c and d together.
+            """
+            Helper function for linking row elements a,b,c and d together.
             """
             a.R = b
             b.R = c
@@ -131,7 +135,8 @@ class DLX(object):
             b.L = a
 
         def link_row_to_column(d):
-            """Helper function for linking row element to its column.
+            """
+            Helper function for linking row element to its column.
             """
             c = d.C
             c.S += 1
@@ -143,7 +148,8 @@ class DLX(object):
             c.U = d
 
         def create_links(x, y, k):
-            """Helper function for creating links from specified row.
+            """
+            Helper function for creating links from specified row.
             """
             # create row link
             pos = DataObject(cols[pos_constraint(x, y, k)], row_num(x, y, k))
@@ -172,11 +178,10 @@ class DLX(object):
         return cls(h, callback)
 
     def cover(self, c):
-        """Cover specified column c.
-
+        """
+        Cover specified column c.
         Removes c from the header list and removes all rows in the list of c
         from the other column lists they are in.
-
         """
         c.R.L = c.L
         c.L.R = c.R
@@ -191,7 +196,8 @@ class DLX(object):
             i = i.D  # next row
 
     def uncover(self, c):
-        """Uncover specified column c.
+        """
+        Uncover specified column c.
         """
         i = c.U
         while i != c:
@@ -206,14 +212,14 @@ class DLX(object):
         c.L.R = c
 
     def choose_column_object(self):
-        """Return choosen column object.
+        """
+        Return choosen column object.
 
         The first column with fewest number of 1s is chosen, this will
         minimize the branching factor.
-
         """
         c = None
-        s = inf
+        s = float('inf')
         j = self.h.R
         while j != self.h:
             if j.S < s:
@@ -223,7 +229,8 @@ class DLX(object):
         return c
 
     def search(self, s):
-        """Search for a exact cover solution from links specified in list s.
+        """
+        Search for a exact cover solution from links specified in list s.
         """
         if not self.find_all and self.solutions > 0:
             return

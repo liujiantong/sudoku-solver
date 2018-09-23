@@ -44,17 +44,16 @@ rm -rf build/ dist/
 
 
 ## wxPython tutorial
-[Getting started with wxPython](https://wiki.wxpython.org/Getting%20Started#Improving_the_layout_-_Using_Sizers)
-
-[Demo source code](https://extras.wxpython.org/wxPython4/extras/4.0.1/wxPython-demo-4.0.1.tar.gz)
+- [Getting started with wxPython](https://wiki.wxpython.org/Getting%20Started#Improving_the_layout_-_Using_Sizers)
+- [Demo source code](https://extras.wxpython.org/wxPython4/extras/4.0.1/wxPython-demo-4.0.1.tar.gz)
 
 
 ## PyInstaller
-[PyInstaller Manual](https://pythonhosted.org/PyInstaller/index.html)
+- [PyInstaller Manual](https://pythonhosted.org/PyInstaller/index.html)
 
 
 ## References
-[Exact cover](https://en.wikipedia.org/wiki/Exact_cover)
-[Algorithm X algorithm](https://en.wikipedia.org/wiki/Knuth%27s_Algorithm_X)
-[Dancing Links algorithm](https://en.wikipedia.org/wiki/Dancing_Links)
+- [Exact cover](https://en.wikipedia.org/wiki/Exact_cover)
+- [Algorithm X algorithm](https://en.wikipedia.org/wiki/Knuth%27s_Algorithm_X)
+- [Dancing Links algorithm](https://en.wikipedia.org/wiki/Dancing_Links)
 

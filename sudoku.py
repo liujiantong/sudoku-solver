@@ -1,11 +1,7 @@
 # encoding: utf-8
 
 import fileinput
-
 from dlx import DLX
-
-from numpy import array, unique
-
 from optparse import OptionParser
 
 
@@ -47,7 +43,6 @@ class Sudoku(object):
         one solution but such challenge is concidered to be an invalid.
         """
         grid = self.build_challenge(line)
-        self.validate_challenge(grid)
 
         dlx = DLX.from_sudoku(grid, self.result)
         dlx.run(self.validate)
@@ -69,52 +64,8 @@ class Sudoku(object):
             else:
                 grid.append(0)
 
-        return array(grid).reshape(9, 9)
-
-    def validate_challenge(self, grid):
-        """
-        Search specified grid (9x9 numpy array) for contradictions.
-        SudokuError is raised if a contradiction is found.
-        """
-        # validate rows
-        for row in grid:
-            cells = []
-            for cell in row:
-                if cell != 0:
-                    if cell in cells:
-                        msg = 'Row digits are not unique in challenge.'
-                        raise SudokuError(msg)
-                    else:
-                        cells.append(cell)
-        # validate columns
-        for column in grid.transpose():
-            cells = []
-            for cell in column:
-                if cell != 0:
-                    if cell in cells:
-                        msg = 'Column digits are not unique in challenge.'
-                        raise SudokuError(msg)
-                    else:
-                        cells.append(cell)
-        # validate boxes
-        for i in range(3):
-            # row slice
-            rs = i * 3
-            re = i * 3 + 3
-            for j in range(3):
-                # column slice
-                cs = j * 3
-                ce = j * 3 + 3
-                # box slice
-                box = grid[rs:re, cs:ce]
-                cells = []
-                for cell in box.flatten():
-                    if cell != 0:
-                        if cell in cells:
-                            msg = 'Box digits are no unique in challenge.'
-                            raise SudokuError(msg)
-                        else:
-                            cells.append(cell)
+        # return array(grid).reshape(9, 9)
+        return [grid[i*9:(i+1)*9] for i in xrange(9)]
 
     def build_solution(self, s):
         """
@@ -129,42 +80,8 @@ class Sudoku(object):
         for row in rows:
             grid.append(row % 9 + 1)
 
-        return array(grid).reshape(9, 9)
-
-    def validate_solution(self, grid):
-        """
-        Search specified grid (9x9 numpy array) for contradictions.
-        SudokuError is raised if a contradiction is found.
-        """
-        # validate cells
-        for cell in grid.flatten():
-            if cell not in range(1, 10):
-                msg = 'Cell digit is not between 1 and 9 in solution.'
-                raise SudokuError(msg)
-        # validate rows
-        for row in grid:
-            if unique(row).size != 9:
-                msg = 'Row digits are not unique in solution.'
-                raise SudokuError(msg)
-        # validate columns
-        for col in grid.transpose():
-            if unique(col).size != 9:
-                msg = 'Column digits are not unique in solution.'
-                raise SudokuError(msg)
-        # validate boxes
-        for i in range(3):
-            # row slice
-            rs = i * 3
-            re = i * 3 + 3
-            for j in range(3):
-                # column slice
-                cs = j * 3
-                ce = j * 3 + 3
-                # box slice
-                box = grid[rs:re, cs:ce]
-                if unique(box.flatten()).size != 9:
-                    msg = 'Box digits are not unique in solution.'
-                    raise SudokuError(msg)
+        # return array(grid).reshape(9, 9)
+        return [grid[i * 9:(i + 1) * 9] for i in xrange(9)]
 
     def result(self, solutions, s):
         """
@@ -179,9 +96,7 @@ class Sudoku(object):
                 msg = 'More than one solution exist.'
                 raise SudokuError(msg)
 
-            self.validate_solution(grid)
-
-        # TODO: transform to solution in dict
+        # transform to solution in dict
         self.format_solution(grid)
 
         if self.pretty:
@@ -190,9 +105,9 @@ class Sudoku(object):
             self.grids.append(self.format_simple(grid))
 
     def format_solution(self, grid):
-        for i, s in enumerate(grid.ravel()):
-            r, c = i / 9, i % 9
-            self.solution[r, c] = s
+        for r, a in enumerate(grid):
+            for c, s in enumerate(a):
+                self.solution[r, c] = s
 
     def format_simple(self, grid):
         """
@@ -231,7 +146,7 @@ def solve_line(sudoku, line, line_num):
     if len(line) < 82 or line[81] != '\n':
         print_error(line_num, 'Input line must be exactly 81 chars long.')
     else:
-        grids = []
+        # grids = []
         try:
             grids = sudoku.solve(line[:81])  # slice off '\n'
         except SudokuError as e:

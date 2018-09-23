@@ -35,20 +35,4 @@ def _print_grids(grids):
         print grid
 
 
-def _mock(matrix_input):
-    # TODO: fake solution algorithm start
-    import time
-    import random
-    time.sleep(2)
-
-    solution = {}
-    for row in xrange(9):
-        for col in xrange(9):
-            solution[(row, col)] = random.randrange(1, 10)
-
-    for k, v in matrix_input.iteritems():
-        row, col = k
-        solution[(row, col)] = v
-    # TODO: fake solution algorithm end
-    return solution
 

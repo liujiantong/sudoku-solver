@@ -31,10 +31,13 @@ class DLX(object):
     """
 
     def __init__(self, h, callback):
-        """Create links from specfied root node h and solution callback.
+        """
+        Create links from specfied root node h and solution callback.
         """
         self.h = h
         self.callback = callback
+        self.solutions = 0
+        self.find_all = False
 
     @classmethod
     def from_matrix(cls, M, callback):
@@ -270,6 +273,6 @@ class DLX(object):
     def run(self, find_all):
         # we only perform a search if there is at least one column object
         if self.h != self.h.R:
-            self.solutions = 0
-            self.find_all = find_all
+            # self.solutions = 0
+            # self.find_all = find_all
             self.search([])

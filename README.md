@@ -53,7 +53,7 @@ rm -rf build/ dist/
 
 
 ## References
-- [Exact cover](https://en.wikipedia.org/wiki/Exact_cover)
+- [Exact cover problem](https://en.wikipedia.org/wiki/Exact_cover)
 - [Algorithm X algorithm](https://en.wikipedia.org/wiki/Knuth%27s_Algorithm_X)
 - [Dancing Links algorithm](https://en.wikipedia.org/wiki/Dancing_Links)
 

@@ -12,7 +12,7 @@ try:
 except ImportError: # if it's not there locally, try the wxPython lib.
     import wx.lib.agw.pybusyinfo as PBI
 
-min_numbers = 5
+min_numbers = 6
 block_width = 50
 no_resize_style = wx.SYSTEM_MENU | wx.CLOSE_BOX | wx.CAPTION
 

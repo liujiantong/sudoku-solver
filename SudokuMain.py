@@ -16,8 +16,14 @@ min_numbers = 5
 block_width = 50
 no_resize_style = wx.SYSTEM_MENU | wx.CLOSE_BOX | wx.CAPTION
 
+CELL_INPUT_COLOR = 'ORANGE'
+CELL_DEFAULT_COLOR = 'LIGHT STEEL BLUE'
+
 
 class SudokuBlockGrid(gridlib.Grid):
+    """
+    Sudoku's panel to show array's number
+    """
     def __init__(self, parent, sudoku, blockId, size, log):
         gridlib.Grid.__init__(self, parent, -1, style=no_resize_style)
         self.sudoku = sudoku
@@ -72,11 +78,18 @@ class SudokuBlockGrid(gridlib.Grid):
         self.ForceRefresh()
 
     def ResetValue(self):
+        """
+        Reset value to empty string.
+        """
         for r in xrange(self.rows):
             for c in xrange(self.cols):
                 self.SetCellValue(r, c, '')
 
     def OnLeftClick(self, evt):
+        """
+        Invoked if cell clicked and get position from event
+        :param evt:
+        """
         print("button OnLeftClick:(%d, %d)" % (evt.GetRow(), evt.GetCol()))
         self.sudoku.ClearSelection(self.blockId, evt.GetRow(), evt.GetCol())
         self.SetCellHighlightROPenWidth(1)
@@ -88,6 +101,9 @@ class SudokuBlockGrid(gridlib.Grid):
 
 
 class NumberGrid(gridlib.Grid):
+    """
+    Numbers panel below SudokuBlockGrid for user input
+    """
     def __init__(self, parent, sudoku, log):
         gridlib.Grid.__init__(self, parent, -1, style=no_resize_style)
         self.sudoku = sudoku
@@ -104,6 +120,7 @@ class NumberGrid(gridlib.Grid):
 
         self.DisableCellEditControl()
         self.DisableDragGridSize()
+        self.SetCellTextColour(CELL_INPUT_COLOR)
 
         self.SetRowSize(0, block_width)
         for col in xrange(9):
@@ -111,12 +128,16 @@ class NumberGrid(gridlib.Grid):
             self.SetReadOnly(0, col, True)
             self.SetCellFont(0, col, wx.Font(30, wx.FONTFAMILY_MODERN, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD))
             self.SetCellAlignment(0, col, wx.ALIGN_CENTER, wx.ALIGN_CENTER)
-            self.SetCellTextColour(0, col, 'MIDNIGHT BLUE')
+            # self.SetCellTextColour(0, col, 'MIDNIGHT BLUE')
             self.SetCellValue(0, col, str(col+1))
 
         self.Bind(gridlib.EVT_GRID_CELL_LEFT_CLICK, self.OnCellLeftClick)
 
     def OnCellLeftClick(self, evt):
+        """
+        Set number value at cell selected
+        :param evt:
+        """
         self.log.write("OnCellLeftClick:(%d, %d)\n" % (evt.GetRow(), evt.GetCol()))
         self.sudoku.SetSelectionValue(evt.GetCol() + 1)
         evt.Skip()
@@ -131,6 +152,7 @@ class SudokuFrame(wx.Frame):
         self.selection = None  # (block_idx, row, col)
         self.inputMatrix = {}
 
+        # layout sizer
         topSizer = wx.BoxSizer(wx.VERTICAL)
         gridSizer = wx.GridSizer(rows=3, cols=3, hgap=4, vgap=4)
         numberSizer = wx.BoxSizer(wx.HORIZONTAL)
@@ -149,6 +171,7 @@ class SudokuFrame(wx.Frame):
         bmp_solve = wx.ArtProvider.GetBitmap(wx.ART_FIND, wx.ART_OTHER)
         bmp_quit = wx.ArtProvider.GetBitmap(wx.ART_QUIT, wx.ART_OTHER)
 
+        # set buttons' icon and label
         self.solveBtn = wx.Button(self.panel, wx.ID_ANY, ' Solve ')
         self.solveBtn.SetBitmap(bmp_solve, wx.LEFT)
         self.solveBtn.Disable()
@@ -164,6 +187,7 @@ class SudokuFrame(wx.Frame):
         btnSizer.Add(self.solveBtn, 0, wx.ALL, 10)
         btnSizer.Add(quitBtn, 0, wx.ALL, 10)
 
+        # bind buttons to event handler
         self.Bind(wx.EVT_BUTTON, self.OnReset, resetBtn)
         self.Bind(wx.EVT_BUTTON, self.OnErase, eraseBtn)
         self.Bind(wx.EVT_BUTTON, self.OnSolve, self.solveBtn)
@@ -199,7 +223,7 @@ class SudokuFrame(wx.Frame):
                 for r in xrange(3):
                     for c in xrange(3):
                         block.SetCellBackgroundColour(r, c, wx.LIGHT_GREY)
-                block.SetCellBackgroundColour(row, col, 'LIGHT STEEL BLUE')
+                block.SetCellBackgroundColour(row, col, CELL_DEFAULT_COLOR)
                 continue
 
             if block.blockId % 3 == blockId % 3:
@@ -224,6 +248,7 @@ class SudokuFrame(wx.Frame):
 
                 if val:
                     self.inputMatrix[self.selection] = val
+                    block.SetCellTextColour(row, col, CELL_INPUT_COLOR)
                 elif self.inputMatrix.get(self.selection, None):
                     del self.inputMatrix[self.selection]
                 break
@@ -232,7 +257,11 @@ class SudokuFrame(wx.Frame):
         self.solveBtn.Enable(len(self.inputMatrix) >= min_numbers)
 
     def ValidateInput(self, val):
-        # validate input here
+        """
+        Search specified grid for contradictions to check input value.
+        :param val: value input
+        :return: return false if contradict
+        """
         blockId, row, col = self.selection
         gRowSel, gColSel = self.Local2Global(blockId, row, col)
         print 'global:(%d, %d), local:[%d:(%d, %d)], value:%s' % (gRowSel, gColSel, blockId, row, col, val)
@@ -276,9 +305,9 @@ class SudokuFrame(wx.Frame):
                 val = solution[(row, col)]
                 bid, r, c = self.Global2Local(row, col)
                 self.blocks[bid].SetCellValue(r, c, str(val))
-        self.SetKnownColor('ORANGE')
+        self.SetKnownColor(CELL_INPUT_COLOR)
 
-    def SetKnownColor(self, color='ORANGE'):
+    def SetKnownColor(self, color=CELL_INPUT_COLOR):
         for k, v in self.inputMatrix.iteritems():
             bid, r, c = k
             block = self.blocks[bid]

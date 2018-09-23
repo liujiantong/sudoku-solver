@@ -39,7 +39,7 @@ pyinstaller --clean -i sudoku.icns -w SudokuMain.py
 
 ### clean build
 ```bash
-rm -rf build/ dist/ 
+rm -rf build/ dist/
 ```
 
 

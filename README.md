@@ -1,12 +1,12 @@
-# sudoku-solver
+# Sudoku-Solver
 
-## install sudoku-solver
+## Install sudoku-solver
 ```bash
 pip install -r requirements.txt
 ```
 
 
-## run sudoku-solver
+## Run sudoku-solver
 - conda python
 ```bash
 pythonw SudokuMain.py
@@ -18,7 +18,7 @@ python SudokuMain.py
 ```
 
 
-## build app for Mac using PyInstaller
+## Build app for Mac using PyInstaller
 
 ### install pyinstaller
 ```bash
@@ -26,18 +26,18 @@ pip install pyinstaller
 pyinstaller -v
 ```
 
-### generate app icon
+### Generate app icon
 ```bash
 iconutil -c icns ./sudoku.iconset/
 ```
 
-### build app
+### Build app
 ```bash
 cd sudoku-solver
 pyinstaller --clean -i sudoku.icns -w SudokuMain.py
 ```
 
-### clean build
+### Clean build
 ```bash
 rm -rf build/ dist/
 ```

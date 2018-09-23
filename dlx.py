@@ -270,10 +270,9 @@ class DLX(object):
             self.uncover(c)
             return
 
-    def run(self, find_all):
+    def run(self, find_all=False):
         # we only perform a search if there is at least one column object
         if self.h != self.h.R:
-            # self.solutions = 0
-            # self.find_all = find_all
+            self.find_all = find_all
             self.search([])
 

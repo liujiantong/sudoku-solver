@@ -44,7 +44,7 @@ class Sudoku(object):
         grid = self.build_challenge(line)
 
         dlx = DLX.from_sudoku(grid, self.result)
-        dlx.run(find_all=False)
+        dlx.run()
 
         return self.grids
 

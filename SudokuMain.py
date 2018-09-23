@@ -262,6 +262,7 @@ class SudokuFrame(wx.Frame):
         :param val: value input
         :return: return false if contradict
         """
+        print 'start ValidateInput'
         blockId, row, col = self.selection
         gRowSel, gColSel = self.Local2Global(blockId, row, col)
         print 'global:(%d, %d), local:[%d:(%d, %d)], value:%s' % (gRowSel, gColSel, blockId, row, col, val)
@@ -271,8 +272,8 @@ class SudokuFrame(wx.Frame):
         for k, v in self.inputMatrix.iteritems():
             bid, r, c = k
             gRow, gCol = self.Local2Global(bid, r, c)
-            if bid == blockId:
-                return str(val) != v
+            if bid == blockId and str(val) == v:
+                return False
 
             rowDict[gRow].append(v)
             colDict[gCol].append(v)

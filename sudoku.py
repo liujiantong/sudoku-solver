@@ -28,8 +28,7 @@ class Sudoku(object):
     is represented as a '.' (dot).
     """
 
-    def __init__(self, validate, pretty):
-        self.validate = validate
+    def __init__(self, pretty):
         self.pretty = pretty
         self.grids = []
         self.solution = {}
@@ -45,13 +44,13 @@ class Sudoku(object):
         grid = self.build_challenge(line)
 
         dlx = DLX.from_sudoku(grid, self.result)
-        dlx.run(self.validate)
+        dlx.run(find_all=False)
 
         return self.grids
 
     def build_challenge(self, line):
         """
-        Returns 9x9 numpy array from specified line.
+        Returns 9x9 array from specified line.
         SudokuError is raised if unexpected value is found.
         """
         grid = []
@@ -90,11 +89,6 @@ class Sudoku(object):
         solution exist or contradiction is found in solution.
         """
         grid = self.build_solution(s)
-
-        if self.validate:
-            if solutions > 1:
-                msg = 'More than one solution exist.'
-                raise SudokuError(msg)
 
         # transform to solution in dict
         self.format_solution(grid)
@@ -156,20 +150,14 @@ def solve_line(sudoku, line, line_num):
 
 
 def solve_line_by_line(options, args):
-    sudoku = Sudoku(options.validate, options.pretty)
+    sudoku = Sudoku(options.pretty)
     for line in fileinput.input(args):
         solve_line(sudoku, line, fileinput.lineno())
 
 
 if __name__ == '__main__':
+    # for unit test
     parser = OptionParser()
-    parser.add_option(
-        '-v',
-        '--validate',
-        dest='validate',
-        help='validate solution (longer search time)',
-        action='store_true'
-    )
     parser.add_option(
         '-p',
         '--pretty',

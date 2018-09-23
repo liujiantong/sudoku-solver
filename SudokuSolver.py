@@ -15,7 +15,7 @@ def solve(matrix_input):
     print 'number_input: %s' % matrix_input
     print 'tx_input: %s' % line_input
 
-    sudoku = Sudoku(False, True)
+    sudoku = Sudoku(pretty=True)
     grids = sudoku.solve(line_input)
     _print_grids(grids)
 

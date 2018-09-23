@@ -1,12 +1,12 @@
 # Sudoku-Solver
 
-## Install sudoku-solver
+## Install Sudoku-Solver
 ```bash
 pip install -r requirements.txt
 ```
 
 
-## Run sudoku-solver
+## Run Sudoku-Solver
 - conda python
 ```bash
 pythonw SudokuMain.py
@@ -20,7 +20,7 @@ python SudokuMain.py
 
 ## Build app for Mac using PyInstaller
 
-### install pyinstaller
+### Install PyInstaller
 ```bash
 pip install pyinstaller
 pyinstaller -v

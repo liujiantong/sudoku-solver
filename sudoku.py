@@ -174,3 +174,4 @@ if __name__ == '__main__':
     except (KeyboardInterrupt, SystemExit) as e:
         print('')
         print('sudoku: Interrupt caught ... exiting')
+

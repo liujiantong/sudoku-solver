@@ -276,3 +276,4 @@ class DLX(object):
             # self.solutions = 0
             # self.find_all = find_all
             self.search([])
+

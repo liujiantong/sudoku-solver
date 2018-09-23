@@ -5,7 +5,7 @@ import wx
 import wx.grid as gridlib
 from collections import defaultdict
 
-import SudokuSolver
+from sudoku import Sudoku
 
 try:
     from agw import pybusyinfo as PBI
@@ -322,9 +322,22 @@ class SudokuFrame(wx.Frame):
             globalInput[(gRow, gCol)] = v
 
         print "Sudoku input:%s" % globalInput
-        solution = SudokuSolver.solve(globalInput)
-        print "done"
-        return solution
+        sudoku = Sudoku(pretty=True)
+        grids = sudoku.solve(self.TransformInput(globalInput))
+
+        # for debug
+        for grid in grids:
+            print grid
+
+        return sudoku.solution
+
+    @classmethod
+    def TransformInput(cls, matrix_input):
+        cache = []
+        for i in xrange(9):
+            for j in xrange(9):
+                cache.append(matrix_input.get((i, j), '.'))
+        return ''.join(cache)
 
     def OnReset(self, evt):
         print 'OnReset handler'

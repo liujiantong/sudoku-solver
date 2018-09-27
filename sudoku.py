@@ -39,7 +39,7 @@ class Sudoku(object):
         Return empty list if no solutions are found and return at most
         one solution if validation is enabled or all solutions if validation
         is disabled. It is possible for a Sudoku challenge to have more than
-        one solution but such challenge is concidered to be an invalid.
+        one solution but such challenge is considered to be an invalid.
         """
         grid = self.build_challenge(line)
 

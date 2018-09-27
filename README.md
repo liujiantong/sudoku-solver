@@ -18,6 +18,10 @@ python SudokuMain.py
 ```
 
 
+## Class Diagram
+![Class Diagram](sudoku_classes.png)
+
+
 ## Build app for Mac using PyInstaller
 
 ### Install PyInstaller
